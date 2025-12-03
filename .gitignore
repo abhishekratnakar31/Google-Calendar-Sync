@@ -1,0 +1,53 @@
+# ENV
+.env
+.env.*
+*.env
+
+# Google OAuth keys
+client_secret.json
+*_secret.json
+*_credentials.json
+credentials.json
+google_oauth.json
+service_account.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Django
+db.sqlite3
+*.sqlite3
+*.db
+staticfiles/
+media/
+
+# Node / React / Vite
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+*.css.map
+
+# Editors / OS garbage
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+*.orig
+
+# Testing
+pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual env
+venv/
+env/

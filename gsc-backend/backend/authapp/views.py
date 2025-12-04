@@ -2,30 +2,40 @@ import os
 from django.http import HttpResponseRedirect, JsonResponse
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
-from .models import GoogleCredentials
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from googleapiclient.discovery import build
 from .utils import get_valid_credentials
 from django.shortcuts import redirect
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import GoogleCredentials, CalendarItem
+from .serializers import GoogleCredentialsSerializer, CalendarItemSerializer
+from .google_helpers import get_google_creds, fetch_user_calendars, create_google_event, create_google_task, fetch_user_tasks, delete_google_task
+# from .google_holidays import fetch_public_holidays
 
 from django.views.decorators.csrf import csrf_exempt
 import json
+from datetime import datetime
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/tasks",
+
     "openid",
 ]
 
 
+
+
 def google_auth_callback(request):
     code = request.GET.get("code")
-
     if not code:
         return JsonResponse({"error": "No authorization code received"}, status=400)
-
     flow = Flow.from_client_config(
     {
         "web": {
@@ -39,10 +49,7 @@ def google_auth_callback(request):
     },
     scopes=SCOPES  
 )
-
-
     flow.redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
-
     token_data = flow.fetch_token(code=code)
     credentials = flow.credentials
 
@@ -72,11 +79,16 @@ def google_auth_callback(request):
             "token_uri": token_uri,
             "client_id": client_id,
             "client_secret": client_secret,
-            "expiry": expiry
+            "expiry": expiry,
+            "name": id_info.get("name"),
+            "picture": id_info.get("picture")
         }
     )
 
     return redirect(f"http://localhost:5173/events?email={email}")
+
+
+
 
 
 def google_auth_init(request):
@@ -103,6 +115,10 @@ def google_auth_init(request):
 
     return HttpResponseRedirect(auth_url)
 
+
+
+
+
 def fetch_google_events(request):
     email = request.GET.get("email")
 
@@ -126,39 +142,59 @@ def fetch_google_events(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+def get_tasks(request):
+    email = request.GET.get("email")
+    if not email:
+        return JsonResponse({"error": "Email is required"}, status=400)
     
-# @csrf_exempt
-# def create_event(request):
-#     if request.method != "POST":
-#         return JsonResponse({"error": "POST required"}, status=400)
+    try:
+        tasks = fetch_user_tasks(email)
+        return JsonResponse({"tasks": tasks}, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
-#     body = json.loads(request.body)
-#     email = body.get("email")
-#     title = body.get("title")
-#     description = body.get("description")
-#     start = body.get("start")
-#     end = body.get("end")
 
-#     if not all([email, title, start, end]):
-#         return JsonResponse({"error": "Missing fields"}, status=400)
+@csrf_exempt
+def delete_task_view(request):
+    if request.method != "DELETE":
+        return JsonResponse({"error": "DELETE required"}, status=400)
 
-#     try:
-#         creds = get_valid_credentials(email)
-#         service = build("calendar", "v3", credentials=creds)
+    try:
+        body = json.loads(request.body)
+        email = body.get("email")
+        task_id = body.get("task_id")
 
-#         event = {
-#             "summary": title,
-#             "description": description,
-#             "start": {"dateTime": start, "timeZone": "Asia/Kolkata"},
-#             "end": {"dateTime": end, "timeZone": "Asia/Kolkata"},
-#         }
+        if not email or not task_id:
+            return JsonResponse({"error": "Missing email or task_id"}, status=400)
 
-#         created = service.events().insert(calendarId="primary", body=event).execute()
-#         return JsonResponse({"success": True, "event": created})
-
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)}, status=500)
+        delete_google_task(email, task_id)
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
     
+
+def get_user_profile(request):
+    email = request.GET.get("email")
+    if not email:
+        return JsonResponse({"error": "Email is required"}, status=400)
+    
+    try:
+        creds = GoogleCredentials.objects.get(email=email)
+        return JsonResponse({
+            "name": creds.name,
+            "picture": creds.picture,
+            "email": creds.email
+        })
+    except GoogleCredentials.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+
+
+
+
+
 @csrf_exempt
 def create_event(request):
     if request.method != "POST":
@@ -175,6 +211,7 @@ def create_event(request):
     description = body.get("description", "")
     start = body.get("start")
     end = body.get("end")
+    calendar_id = body.get("calendar_id", "primary")
 
     if not email or not title or not start or not end:
         return JsonResponse({
@@ -196,19 +233,48 @@ def create_event(request):
     if not start or not end:
         return JsonResponse({"error": "Invalid start or end datetime format"}, status=400)
 
+    # Validate time range
+    try:
+        # Format is YYYY-MM-DDTHH:MM:SS
+        start_dt = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
+        end_dt = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
+        if end_dt <= start_dt:
+            return JsonResponse({"error": "End time must be after start time"}, status=400)
+    except ValueError:
+        # If parsing fails, let Google API handle it or return error
+        pass
+
     try:
         creds = get_valid_credentials(email)
         service = build("calendar", "v3", credentials=creds)
+        attendees = body.get("attendees", [])
 
         event_body = {
-            "summary": title,
-            "description": description,
-            "start": {"dateTime": start, "timeZone": "Asia/Kolkata"},
-            "end": {"dateTime": end, "timeZone": "Asia/Kolkata"},
-        }
+    "summary": title,
+    "description": description,
+    "start": {"dateTime": start, "timeZone": "Asia/Kolkata"},
+    "end": {"dateTime": end, "timeZone": "Asia/Kolkata"},
+    "attendees": [{"email": a} for a in attendees],
+}
 
-        created = service.events().insert(calendarId="primary", body=event_body).execute()
-        return JsonResponse({"success": True, "event": created}, status=201)
+        if body.get("add_meet"):
+            event_body["conferenceData"] = {
+                "createRequest": {
+                    "requestId": f"meet-{int(datetime.now().timestamp())}",
+                    "conferenceSolutionKey": {"type": "hangoutsMeet"}
+                }
+            }
+
+        print("EVENT BODY:", event_body)
+
+
+        created = service.events().insert(
+            calendarId=calendar_id, 
+            body=event_body,
+            sendUpdates='all',
+            conferenceDataVersion=1
+        ).execute()
+        return JsonResponse({"success": True, "event": created, "event-link": created.get("htmlLink")}, status=201)
 
     except Exception as e:
         # Return both the message and a simple repr so debugging is easier
@@ -217,23 +283,11 @@ def create_event(request):
 
 
 
-# def delete_event(request):
-#     event_id = request.GET.get("id")
-#     email = request.GET.get("email")
 
-#     if not event_id or not email:
-#         return JsonResponse({"error": "Missing event id or email"}, status=400)
 
-#     try:
-#         creds = get_valid_credentials(email)
-#         service = build("calendar", "v3", credentials=creds)
 
-#         service.events().delete(calendarId="primary", eventId=event_id).execute()
-#         return JsonResponse({"success": True})
 
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)}, status=500)
-    
+
 @csrf_exempt
 def delete_event(request):
     if request.method != "DELETE":
@@ -256,6 +310,10 @@ def delete_event(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
 
 @csrf_exempt
 def update_event(request):
@@ -295,5 +353,89 @@ def update_event(request):
 
 
 
+
+
 def sync_events(request):
     return fetch_google_events(request)
+
+
+
+class CalendarListView(APIView):
+    permission_classes = []  # must be public or use email param
+
+    def get(self, request):
+        email = request.GET.get("email")
+
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+
+        try:
+            creds = get_valid_credentials(email)
+            service = build("calendar", "v3", credentials=creds)
+
+            calendars = service.calendarList().list().execute()
+            items = calendars.get("items", [])
+
+            result = []
+            for c in items:
+                result.append({
+                    "id": c["id"],
+                    "summary": c.get("summary", ""),
+                    "primary": c.get("primary", False)
+                })
+
+            return Response({"calendars": result}, status=200)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+
+
+class SetDefaultCalendarView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        default_id = request.data.get('default_calendar_id')
+        cred, _ = GoogleCredentials.objects.get_or_create(user=request.user, defaults={'token': {}})
+        cred.default_calendar_id = default_id
+        cred.save()
+        return Response({'default_calendar_id': cred.default_calendar_id}, status=status.HTTP_200_OK)
+
+class CalendarItemCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CalendarItemSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+
+
+class CreateGoogleItemView(APIView):
+    permission_classes = []  # REMOVE auth, frontend is not authenticated
+
+    def post(self, request):
+        item_type = request.data.get("type")
+        email = request.data.get("email")
+
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+
+        if item_type in ["event", "appointment"]:
+            try:
+                event = create_google_event(email, request.data)
+                return Response({"google_event": event}, status=201)
+            except Exception as e:
+                return Response({"error": str(e)}, status=400)
+
+        elif item_type == "task":
+            try:
+                task = create_google_task(email, request.data)
+                return Response({"google_task": task}, status=201)
+            except Exception as e:
+                return Response({"error": str(e)}, status=400)
+
+        return Response({"error": "Invalid type"}, status=400)
+
+

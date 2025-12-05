@@ -1,4 +1,4 @@
-django
+Django==6.0
 djangorestframework
 gunicorn
 google-auth
@@ -8,3 +8,4 @@ google-api-python-client
 django-cors-headers
 python-dotenv
 requests
+psycopg2-binary  

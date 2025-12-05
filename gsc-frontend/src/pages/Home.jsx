@@ -97,13 +97,6 @@ function Home() {
       <main className="relative z-10 pt-16 pb-24 lg:pt-32 lg:pb-40 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
           <div className="space-y-8 mb-16">
-            <div className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-green/10 border border-brand-green/20 text-brand-green text-sm font-medium mb-4">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
-              </span>
-              v2.0 is now live
-            </div>
             <h1 className="hero-text text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
               Master Your Schedule <br />
               <span className="text-brand-blue">
@@ -254,12 +247,12 @@ function Home() {
       <footer className="py-12 text-center border-t border-gray-100 dark:border-black bg-white/50 dark:bg-black backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} PindSync. Crafted with ❤️ for productivity.
+            &copy; {new Date().getFullYear()} PindSync.
           </p>
           <div className="flex gap-6 text-gray-400">
-            <a href="#" className="hover:text-brand-blue transition-colors">Twitter</a>
-            <a href="#" className="hover:text-brand-blue transition-colors">GitHub</a>
-            <a href="#" className="hover:text-brand-blue transition-colors">LinkedIn</a>
+
+            <a href="https://github.com/abhishekratnakar31/Google-Calendar-Sync" className="hover:text-brand-blue transition-colors">GitHub</a>
+
           </div>
         </div>
       </footer>

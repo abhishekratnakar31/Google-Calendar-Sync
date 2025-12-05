@@ -69,12 +69,18 @@ def create_google_event(user_email, data):
             }
         }
 
+    # Add attendees if present
+    attendees = data.get("attendees", [])
+    if attendees:
+        event_body["attendees"] = [{"email": email} for email in attendees]
+
     event = (
         service.events()
         .insert(
             calendarId=data["google_calendar_id"],
             body=event_body,
             conferenceDataVersion=1,
+            sendUpdates='all',  # Send emails to attendees
         )
         .execute()
     )

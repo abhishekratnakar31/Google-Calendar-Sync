@@ -142,6 +142,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    os.getenv('FRONTEND_URL'),
 ]
 
 CORS_ALLOW_HEADERS = [

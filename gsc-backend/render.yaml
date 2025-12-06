@@ -2,7 +2,8 @@ services:
   - type: web
     name: gsc-backend
     env: python
-    buildCommand: pip install -r requirements.txt
+    rootDir: backend
+    buildCommand: pip install -r ../requirements.txt
     startCommand: gunicorn config.wsgi
     envVars:
       - key: DJANGO_SETTINGS_MODULE

@@ -21,6 +21,12 @@ const CreateEventForm = ({ email, onEventCreated }) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!email) {
+      alert("No user email found. Please sign in again.");
+      setLoading(false);
+      return;
+    }
+
     const body = {
       email,
       type: itemType,
@@ -59,7 +65,7 @@ const CreateEventForm = ({ email, onEventCreated }) => {
         setAttendees("");
       } else {
         console.log(data);
-        alert("Error creating item.");
+        alert(data.error || "Error creating item.");
       }
     } catch (error) {
       console.error(error);

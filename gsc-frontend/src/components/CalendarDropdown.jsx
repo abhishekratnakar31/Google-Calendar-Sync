@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ChevronDown, Calendar } from 'lucide-react';
 
+
+const API_URL = import.meta.env.VITE_API_URL;
+// or process.env.REACT_APP_API_URL
 export default function CalendarDropdown({ email, onSelect }) {
   const [calendars, setCalendars] = useState([]);
 
   useEffect(() => {
     if (!email) return;
-    axios.get('http://localhost:8000/auth/calendars/', {
+    axios.get(`${API_URL}/auth/calendars/`, {
       params: { email },
       withCredentials: true
     })

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Plus, Type, AlignLeft, Clock, Calendar as CalendarIcon, Video, X } from "lucide-react";
 import CalendarDropdown from "./CalendarDropdown";
 
+const API_URL = import.meta.env.VITE_API_URL;
+// or process.env.REACT_APP_API_URL
 const CreateEventForm = ({ email, onEventCreated }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [itemType, setItemType] = useState("event");
@@ -36,7 +38,7 @@ const CreateEventForm = ({ email, onEventCreated }) => {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/auth/items/create/", {
+      const res = await fetch(`${API_URL}/auth/items/create/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

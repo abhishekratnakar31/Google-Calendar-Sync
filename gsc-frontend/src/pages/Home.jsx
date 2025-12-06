@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Home() {
   const container = useRef();
@@ -88,7 +89,7 @@ function Home() {
             <a href="#features" className="hover:text-brand-blue transition-colors dark:text-gray-300 dark:hover:text-brand-blue">Features</a>
             <a href="#how-it-works" className="hover:text-brand-blue transition-colors dark:text-gray-300 dark:hover:text-brand-blue">How it Works</a>
             <ThemeToggle />
-            <a href="http://localhost:8000/auth/init" className="px-4 py-2 bg-brand-blue/10 text-brand-blue rounded-lg hover:bg-brand-blue/20 transition-colors dark:bg-brand-blue/20 dark:text-blue-300">Login</a>
+            <a href={`${API_URL}/auth/init`} className="px-4 py-2 bg-brand-blue/10 text-brand-blue rounded-lg hover:bg-brand-blue/20 transition-colors dark:bg-brand-blue/20 dark:text-blue-300">Login</a>
           </div>
         </div>
       </nav>
@@ -110,7 +111,7 @@ function Home() {
 
             <div className="hero-text flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <a
-                href="http://localhost:8000/auth/init"
+                href={`${API_URL}/auth/init`}
                 className="hero-btn group relative inline-flex items-center gap-3 px-8 py-4 bg-brand-blue text-white text-lg font-semibold rounded-full overflow-hidden shadow-xl shadow-brand-blue/30 hover:shadow-2xl hover:shadow-brand-blue/40 transition-all hover:-translate-y-1"
               >
                 <span className="relative z-10">Get Started with Google</span>
@@ -233,7 +234,7 @@ function Home() {
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to organize your life?</h2>
               <p className="text-blue-100 text-xl mb-10 max-w-2xl mx-auto">Join thousands of users who have streamlined their schedule with PindSync.</p>
               <a
-                href="http://localhost:8000/auth/init"
+                href={`${API_URL}/auth/init`}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-blue text-lg font-bold rounded-full hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 Get Started Now

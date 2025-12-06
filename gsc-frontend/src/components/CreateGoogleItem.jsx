@@ -12,6 +12,7 @@ export default function CreateGoogleItem() {
   const [dueAt, setDueAt] = useState("");
   const [addMeet, setAddMeet] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
   const handleSubmit = async () => {
     const payload = {
       type,
@@ -25,7 +26,7 @@ export default function CreateGoogleItem() {
     };
 
     try {
-      const res = await axios.post("http://localhost:8000/auth/items/create/", payload, { withCredentials: true });
+      const res = await axios.post(`${API_URL}/auth/items/create/`, payload, { withCredentials: true });
       alert("Item created!");
       console.log(res.data);
     } catch (err) {

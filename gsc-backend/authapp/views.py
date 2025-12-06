@@ -84,8 +84,8 @@ def google_auth_callback(request):
             "picture": id_info.get("picture")
         }
     )
-
-    return redirect(f"http://localhost:5173/events?email={email}")
+    frontend = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+    return redirect(f"{frontend}/events?email={email}")
 
 
 

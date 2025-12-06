@@ -7,6 +7,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const Events = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,13 +53,13 @@ const Events = () => {
       setLoading(true);
 
       // Fetch Events
-      fetch(`http://localhost:8000/auth/events/?email=${email}`)
+      fetch(`${API_URL}/auth/events/?email=${email}`)
         .then((res) => res.json())
         .then((data) => setEvents(data.events || []))
         .catch((err) => console.error("Error fetching events:", err));
 
       // Fetch Tasks
-      fetch(`http://localhost:8000/auth/tasks/?email=${email}`)
+      fetch(`${API_URL}/auth/tasks/?email=${email}`)
         .then((res) => res.json())
         .then((data) => setTasks(data.tasks || []))
         .catch((err) => console.error("Error fetching tasks:", err))
@@ -68,7 +69,7 @@ const Events = () => {
 
   const fetchProfile = React.useCallback(() => {
     if (email) {
-      fetch(`http://localhost:8000/auth/profile/?email=${email}`)
+      fetch(`${API_URL}/auth/profile/?email=${email}`)
         .then((res) => res.json())
         .then((data) => setProfile(data))
         .catch((err) => console.error("Error fetching profile:", err));
@@ -89,7 +90,7 @@ const Events = () => {
   const deleteEvent = async (eventId) => {
     if (!confirm("Are you sure you want to delete this event?")) return;
 
-    await fetch("http://localhost:8000/auth/events/delete", {
+    await fetch(`${API_URL}/auth/events/delete`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, event_id: eventId }),
@@ -102,7 +103,7 @@ const Events = () => {
     // Optimistic update for better UX
     setTasks(prev => prev.filter(t => t.id !== taskId));
 
-    await fetch("http://localhost:8000/auth/tasks/delete", {
+    await fetch(`${API_URL}/auth/tasks/delete`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, task_id: taskId }),
@@ -112,7 +113,7 @@ const Events = () => {
   };
 
   const updateEvent = async (eventId, updatedFields) => {
-    await fetch("http://localhost:8000/auth/events/update", {
+    await fetch(`${API_URL}/auth/events/update`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

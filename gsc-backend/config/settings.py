@@ -20,7 +20,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -142,7 +142,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    os.getenv('FRONTEND_URL'),
+    "https://your-frontend.vercel.app",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://your-frontend.vercel.app",
 ]
 
 CORS_ALLOW_HEADERS = [

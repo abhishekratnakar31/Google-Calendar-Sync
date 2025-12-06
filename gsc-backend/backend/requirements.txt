@@ -1,12 +1,11 @@
-Django>=4.2,<5.0
+Django>=5.0
 djangorestframework
-gunicorn
+requests
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
 google-api-python-client
-django-cors-headers
-python-dotenv
-requests
+gunicorn
 psycopg2-binary
-dj_database_url  
+python-dotenv
+django-cors-headers

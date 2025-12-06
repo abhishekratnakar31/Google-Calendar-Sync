@@ -84,7 +84,9 @@ def google_auth_callback(request):
             "picture": id_info.get("picture")
         }
     )
-    frontend = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+    # Default to Vercel in production if env var not set
+    # DEVELOPERS: Set FRONTEND_URL=http://localhost:5173 in your .env for local dev
+    frontend = os.environ.get("FRONTEND_URL", "https://google-calendar-sync-jet.vercel.app")
     return redirect(f"{frontend}/events?email={email}")
 
 

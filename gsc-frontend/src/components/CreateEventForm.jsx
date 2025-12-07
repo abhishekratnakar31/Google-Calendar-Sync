@@ -79,7 +79,7 @@ const CreateEventForm = ({ email, onEventCreated }) => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-6 py-3 bg-brand-blue text-white font-bold rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-brand-blue/30 h-[52px]"
+        className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-white hover:text-green-600 transition-all h-[52px]"
       >
         <Plus className="w-5 h-5" />
         Create New

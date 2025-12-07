@@ -53,16 +53,18 @@ const EventList = ({ events, onDelete, onUpdate, type }) => {
             dateStr = new Date(event.due).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
           }
 
-          const style = cardStyles[index % cardStyles.length];
+          const style = type === 'task'
+            ? { bg: "bg-green-600", text: "text-white", icon: "text-white" }
+            : cardStyles[index % cardStyles.length];
 
           return (
             <div
               key={event.id}
-              className={`event-card group relative ${style.bg} ${style.text} rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[180px] border border-black/5 subpixel-antialiased overflow-hidden`}
+              className={`event-card group relative ${style.bg} ${style.text} rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[180px] border border-black/5 subpixel-antialiased overflow-hidden ${type === 'task' ? 'w-[90%] mx-auto' : ''}`}
             >
               {/* Top Section */}
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold uppercase tracking-wider opacity-80 bg-black/10 px-2 py-1 rounded-md">
+                <span className={`text-xs font-bold uppercase tracking-wider opacity-80 px-2 py-1 rounded-md ${style.text === 'text-white' ? 'bg-white/20' : 'bg-black/10'}`}>
                   {dateStr}
                 </span>
                 {type !== 'task' && (

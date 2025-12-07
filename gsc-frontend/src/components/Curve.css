@@ -1,0 +1,39 @@
+
+.page.curve {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.curve .curve-svg,
+.curve .background {
+  position: fixed;
+  height: calc(100vh + 600px);
+  width: 100vw;
+  pointer-events: none;
+  left: 0;
+  top: 0;
+  z-index: 99; /* High z-index to be on top */
+}
+
+.curve .background {
+  background-color: black;
+  transition: opacity 0s linear 0.1s;
+  z-index: 99;
+}
+
+.curve .route {
+  position: fixed; /* Fixed to stay on screen during transition */
+  left: 50%;
+  top: 40%;
+  color: white;
+  font-size: 46px;
+  z-index: 100; /* Above SVG */
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+/* Ensure SVG path has a fill */
+.curve .curve-svg path {
+  fill: black;
+}

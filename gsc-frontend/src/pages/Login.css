@@ -1,0 +1,105 @@
+/* Liquid Glass Card */
+.liquid-glass-card {
+  position: relative;
+  width: 100%;
+  max-width: 450px; /* Adapted for responsiveness */
+  min-height: 450px;
+  border-radius: 28px;
+  isolation: isolate;
+  box-shadow: 0px 6px 21px -8px rgba(230, 220, 220, 0.2);
+  cursor: default;
+  margin: auto;
+}
+
+/* Tint and inner shadow layer */
+.liquid-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 28px;
+  box-shadow: inset 0 0 10px -2px rgba(128, 128, 128, 0.3);
+  background-color: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+/* Backdrop blur and distortion layer */
+.liquid-glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 28px;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(2px);
+  filter: url(#glass-distortion);
+  -webkit-filter: url(#glass-distortion);
+  isolation: isolate;
+  pointer-events: none;
+}
+
+/* Content styling */
+.card-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  color: white; /* Default to white for dark mode compatibility essentially, but we need to handle light mode text visibility if bg is light. */
+}
+
+/* Ensure text is visible on light/dark backgrounds. 
+   The user's snippet hardcoded color: white. 
+   If the page background is white (light mode), white text might be invisible if the card is transparent.
+   However, the card adds a slight tint. 
+   Let's check the container background. 
+   The container has blob background and potentially dark/light mode.
+   I will use currentcolor or stick to white if the card is meant to be "glassy" often implies dark or vibrant background usage. 
+   Given the blobs, white text usually looks easiest. 
+   But I will add a text-shadow or ensure contrast.
+   Actually, the user's snippet has `color: white`. I'll stick to that but verify generic text colors.
+*/
+
+.card-content h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: inherit;
+}
+
+.card-content p {
+  opacity: 0.9;
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: inherit;
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}

@@ -123,6 +123,7 @@ def google_auth_init(request):
 
 def fetch_google_events(request):
     email = request.GET.get("email")
+    calendar_id = request.GET.get("calendar_id", "primary")
 
     if not email:
         return JsonResponse({"error": "Email is required"}, status=400)
@@ -132,8 +133,8 @@ def fetch_google_events(request):
         service = build("calendar", "v3", credentials=creds)
 
         events_result = service.events().list(
-            calendarId="primary",
-            maxResults=10,
+            calendarId=calendar_id,
+            maxResults=50,
             singleEvents=True,
             orderBy="startTime"
         ).execute()

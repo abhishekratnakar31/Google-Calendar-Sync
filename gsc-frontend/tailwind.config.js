@@ -8,9 +8,10 @@ export default {
       colors: {
         brand: {
           blue: '#4C8BF5',
-          green: '#1DA462',
+          green: '#0ab51bff',
           red: '#DD5144',
           yellow: '#FFCD46',
+          black:'#161819'
         }
       }
     },

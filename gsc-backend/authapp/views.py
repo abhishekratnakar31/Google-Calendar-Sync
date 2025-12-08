@@ -117,10 +117,6 @@ def google_auth_init(request):
 
     return HttpResponseRedirect(auth_url)
 
-
-
-
-
 def fetch_google_events(request):
     email = request.GET.get("email")
     calendar_id = request.GET.get("calendar_id", "primary")
@@ -300,6 +296,7 @@ def delete_event(request):
         body = json.loads(request.body)
         email = body.get("email")
         event_id = body.get("event_id")
+        calendar_id = body.get("calendar_id", "primary")
 
         if not email or not event_id:
             return JsonResponse({"error": "Missing email or event_id"}, status=400)
@@ -307,15 +304,12 @@ def delete_event(request):
         creds = get_valid_credentials(email)
         service = build("calendar", "v3", credentials=creds)
 
-        service.events().delete(calendarId="primary", eventId=event_id).execute()
+        service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
 
         return JsonResponse({"success": True})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
-
-
 
 
 @csrf_exempt
@@ -326,6 +320,7 @@ def update_event(request):
     body = json.loads(request.body)
     email = body.get("email")
     event_id = body.get("event_id")
+    calendar_id = body.get("calendar_id", "primary")
     summary = body.get("summary")
     description = body.get("description")
     start = body.get("start")
@@ -337,7 +332,7 @@ def update_event(request):
     creds = get_valid_credentials(email)
     service = build("calendar", "v3", credentials=creds)
 
-    event = service.events().get(calendarId="primary", eventId=event_id).execute()
+    event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
 
     if summary: event["summary"] = summary
     if description: event["description"] = description
@@ -347,7 +342,7 @@ def update_event(request):
         event["end"] = {"dateTime": end, "timeZone": "Asia/Kolkata"}
 
     updated_event = service.events().update(
-        calendarId="primary",
+        calendarId=calendar_id,
         eventId=event_id,
         body=event
     ).execute()

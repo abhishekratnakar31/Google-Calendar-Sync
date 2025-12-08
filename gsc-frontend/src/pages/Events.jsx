@@ -4,6 +4,7 @@ import { RefreshCw, Calendar as CalendarIcon, LayoutDashboard, Settings, LogOut,
 import EventList from "../components/EventList";
 import ScheduleList from "../components/ScheduleList";
 import CreateEventForm from "../components/CreateEventForm";
+import EditEventModal from "../components/EditEventModal";
 import ThemeToggle from "../components/ThemeToggle";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -21,6 +22,7 @@ const Events = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   // Calendar Filtering State
   const [activeCalendar, setActiveCalendar] = useState("primary");
@@ -135,7 +137,7 @@ const Events = () => {
     await fetch(`${API_URL}/auth/events/delete`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, event_id: eventId }),
+      body: JSON.stringify({ email, event_id: eventId, calendar_id: activeCalendar }),
     });
 
     fetchData(); // refresh list
@@ -161,11 +163,24 @@ const Events = () => {
       body: JSON.stringify({
         email,
         event_id: eventId,
+        calendar_id: activeCalendar,
         ...updatedFields,
       }),
     });
 
     fetchData(); // refresh list
+  };
+
+  const handleEditClick = (eventId) => {
+    const eventToEdit = events.find(e => e.id === eventId);
+    if (eventToEdit) {
+      setEditingEvent(eventToEdit);
+    }
+  };
+
+  const handleSaveEvent = async (eventId, updatedFields) => {
+    await updateEvent(eventId, updatedFields);
+    setEditingEvent(null);
   };
 
   const handleLogout = () => {
@@ -228,7 +243,7 @@ const Events = () => {
           fetch(`${API_URL}/auth/events/delete`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, event_id: eventId }),
+            body: JSON.stringify({ email, event_id: eventId, calendar_id: activeCalendar }),
           })
         )
       );
@@ -406,9 +421,15 @@ const Events = () => {
                   <ScheduleList
                     events={allScheduleItems}
                     onDelete={deleteEvent}
-                    onUpdate={updateEvent}
+                    onUpdate={handleEditClick}
                     selectedIds={selectedEventIds}
                     onToggleSelect={toggleEventSelection}
+                  />
+                  <EditEventModal
+                    isOpen={!!editingEvent}
+                    event={editingEvent}
+                    onClose={() => setEditingEvent(null)}
+                    onSave={handleSaveEvent}
                   />
                 </div>
 

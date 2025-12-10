@@ -1,133 +1,167 @@
-# Google Calendar Sync
+# Google Scheduler Connect (GSC)
 
-Google Calendar Sync is a lightweight JavaScript web app that lets users connect their Google account, read and sync calendar events between accounts or services, and manage calendar synchronization through a simple UI.
+Google Scheduler Connect is a full-stack system that lets users authenticate with Google, fetch their calendar data, store tokens securely, and automate scheduling workflows. It provides a smooth backend integration with the Google Calendar API along with a clean frontend interface for triggering event sync, viewing schedules, and managing token-based authentication.
 
-Live demo: https://google-calendar-sync-jet.vercel.app
+Live demo: [https://gsc-deploy.vercel.app](https://gsc-deploy.vercel.app) (replace with your actual link)
 
 ---
 
 ## Features
 
-- Sign in with Google (OAuth) to access your Google Calendar.
-- Read events from one or more calendars.
-- Sync events between calendars or external services (depends on configuration).
-- Simple UI for selecting calendars and viewing upcoming events.
-- Deployable to Vercel or any Node/JavaScript hosting platform.
+* Google OAuth sign-in to securely fetch access and refresh tokens.
+* Automated event fetching from Google Calendar using stored credentials.
+* Fully functioning backend service for token management and Google Calendar API interactions.
+* Frontend UI to authenticate users, trigger syncs, and test scheduling flows.
+* Database support for storing Google Credentials (access token, refresh token, metadata).
+* Easily deployable on Vercel or any Node/Next.js-compatible hosting service.
 
-> Note: The exact sync behavior and supported flows depend on how you configure the app (scopes, sync direction, and any external integrations). Adjust the environment variables and OAuth scopes to match your intended sync functionality.
+> Note: Sync automation and event behavior depend on your configured OAuth scopes and token permissions. Update `.env` values and scopes to match what your project needs.
 
 ---
 
 ## Tech stack
 
-- JavaScript (project language)
-- Next.js / Node.js (likely — app is deployable to Vercel)
-- Google Calendar API (OAuth 2.0)
+* **Next.js** (frontend and backend API routes)
+* **Node.js**
+* **Django REST Framework** (if used for earlier prototypes)
+* **Google Calendar API (OAuth 2.0)**
+* **MongoDB / PostgreSQL / SQLite** (depending on your setup)
+* **Axios / Fetch** for API communication
 
 ---
 
 ## Getting started (local)
 
-Prerequisites
+### Prerequisites
 
-- Node.js (recommended v18+)
-- npm or yarn
-- A Google Cloud project with the Google Calendar API enabled and OAuth 2.0 credentials created
+* Node.js v18+
+* npm or yarn
+* Google Cloud project with Calendar API enabled
+* OAuth 2.0 credentials configured
 
-1. Clone the repository
-   - git clone https://github.com/abhishekratnakar31/Google-Calendar-Sync.git
-   - cd Google-Calendar-Sync
+### 1. Clone the repository
 
-2. Install dependencies
-   - npm install
-   - or
-   - yarn
+```
+git clone https://github.com/<your-repo>/GSC.git
+cd GSC
+```
 
-3. Create OAuth 2.0 credentials in Google Cloud Console
-   - Open https://console.cloud.google.com/
-   - Create a new project (or use an existing one)
-   - Enable the Google Calendar API for the project
-   - Configure the OAuth consent screen (internal or external depending on your needs)
-   - Create OAuth 2.0 Client ID credentials (type: Web application)
-   - Add authorized redirect URI(s), for example:
-     - http://localhost:3000/api/auth/callback/google
-     - https://your-production-domain.com/api/auth/callback/google
+### 2. Install dependencies
 
-4. Create a local environment file
-   - Copy/create `.env.local` (or `.env`) and set the required variables. Example:
-     ```
-     GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-     GOOGLE_CLIENT_SECRET=your-google-client-secret
-     NEXTAUTH_URL=http://localhost:3000
-     SESSION_SECRET=some-random-secret
-     ```
-   - If the repository uses different names for env variables, adapt accordingly. (Check the code for exact variable names if necessary.)
+```
+npm install
+```
 
-4. Run the app locally
-   - npm run dev
-   - or
-   - yarn dev
-   - Open http://localhost:3000 in your browser and sign in with Google to begin.
+or
+
+```
+yarn
+```
+
+### 3. Set up Google OAuth credentials
+
+* Visit [https://console.cloud.google.com/](https://console.cloud.google.com/)
+* Create/select a project
+* Enable **Google Calendar API**
+* Configure **OAuth consent screen**
+* Create **OAuth 2.0 Client ID** (type: *Web application*)
+* Add redirect URIs:
+
+  * `http://localhost:3000/api/auth/callback/google`
+  * `https://your-production-url.com/api/auth/callback/google`
+
+### 4. Create your environment variables
+
+Create `.env.local`:
+
+```
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+NEXTAUTH_URL=http://localhost:3000
+SESSION_SECRET=some-long-random-string
+DATABASE_URL=your-db-url-if-applicable
+```
+
+Modify names as required based on your actual code.
+
+### 5. Run the app locally
+
+```
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) and sign in with Google.
 
 ---
 
 ## Deploying
 
-- Vercel
-  - Connect your GitHub repo to Vercel.
-  - Set the same environment variables in the Vercel dashboard (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_URL, SESSION_SECRET, etc.).
-  - Deploy. Ensure the OAuth redirect URIs in Google Cloud include your Vercel domain.
+### Deploying to Vercel
 
-- Other hosts
-  - Build and export per your host’s Node/Next.js instructions.
-  - Make sure the production URL is set in your OAuth credentials and environment variables.
+* Connect repo to Vercel.
+
+* Add env vars:
+  `GOOGLE_CLIENT_ID`,
+  `GOOGLE_CLIENT_SECRET`,
+  `NEXTAUTH_URL`,
+  `SESSION_SECRET`,
+  `DATABASE_URL` (if required).
+
+* Deploy.
+
+* Update Google Cloud with your Vercel redirect URI:
+
+  * `https://your-vercel-domain.vercel.app/api/auth/callback/google`
+
+### Deploying elsewhere
+
+* Export or build based on host documentation.
+* Ensure environment variables are configured.
+* Production OAuth redirect URI must match your hosting URL.
 
 ---
 
 ## OAuth scopes
 
-When configuring the Google OAuth client, request only the scopes you need. Common Calendar scopes:
+These are commonly used:
 
-- https://www.googleapis.com/auth/calendar.events (read/write events)
-- https://www.googleapis.com/auth/calendar.events.readonly (read-only)
-- https://www.googleapis.com/auth/calendar (manage calendars and events)
+* `https://www.googleapis.com/auth/calendar.events` (read/write)
+* `https://www.googleapis.com/auth/calendar.events.readonly` (read-only)
+* `https://www.googleapis.com/auth/calendar` (full access)
 
-Adjust scopes in the app config to match your needs and to keep user permission requests minimal.
+Use the minimum scopes necessary to avoid scaring users with permissions they didn’t ask for.
 
 ---
 
 ## Troubleshooting
 
-- Invalid redirect URI
-  - Ensure the redirect URI configured in Google Cloud exactly matches the callback URL used by the app (including scheme and trailing slash rules).
-- Insufficient scopes / permissions
-  - If the app fails to read or write events, double-check the requested scopes and re-consent if necessary.
-- Session or environment errors
-  - Verify that required env vars are present and that SESSION_SECRET/other secrets are valid strings.
+**Invalid redirect URI**
+Means your Google Cloud configuration and your app URL are refusing to be friends. Make them match exactly.
+
+**Token not refreshing**
+Your refresh token probably didn’t get issued because you didn’t set access type to `offline` or didn’t include the right scopes.
+
+**Session or environment issues**
+Double-check `.env.local`, especially `SESSION_SECRET` and your client credentials.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Suggested workflow:
+Not required, but if you insist:
 
-1. Fork the repository.
-2. Create a feature branch: git checkout -b feature/my-feature
-3. Commit your changes and open a pull request.
-4. Describe the changes, and include any migration or env var changes required.
+1. Fork the repo
+2. Create a feature branch
+3. Commit changes
+4. Open a PR
+5. Explain what you broke improved
 
-If you want help drafting issues, tests, or a CI configuration, I can help create those.
+I can help draft issues, docs, or tests if you want to clean this thing up even more.
 
 ---
 
 ## Security
 
-- Do not commit client secrets or tokens to source control.
-- Use environment variables and secret management for deployments.
-- Follow the principle of least privilege when selecting OAuth scopes.
-
----
-
-## License
-
-No license file is included in the repository currently. If you want to open-source this project, consider adding a LICENSE (for example MIT). I can add a suggested MIT license file if you’d like.
+* Never commit secrets or tokens.
+* Keep all sensitive credentials in `.env`.
+* Limit OAuth scopes to exactly what your app needs.

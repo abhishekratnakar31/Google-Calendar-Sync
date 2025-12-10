@@ -2,7 +2,7 @@
 
 Google Scheduler Connect is a full-stack system that lets users authenticate with Google, fetch their calendar data, store tokens securely, and automate scheduling workflows. It provides a smooth backend integration with the Google Calendar API along with a clean frontend interface for triggering event sync, viewing schedules, and managing token-based authentication.
 
-Live demo: [[https://gsc-deploy.vercel.app](https://google-calendar-sync-jet.vercel.app/)]([https://gsc-deploy.vercel.app](https://google-calendar-sync-jet.vercel.app/)) (replace with your actual link)
+Live demo: https://google-calendar-sync-jet.vercel.app/
 
 ---
 
